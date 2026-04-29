@@ -65,7 +65,7 @@ def main():
         # Step 6: Get YAML template
         logger.info("Fetching YAML template from john19960810/test")
         yaml_template = repo.get_azure_repo_file(
-            org_name, 'john19960810', 'test', '/azure-pipelines.yml', pat, branch='test'
+            org_name, 'john19960810', 'test', '/azure-pipelines.yml', pat, branch='main'
         )
 
         # Step 7: Validate YAML template
@@ -115,7 +115,7 @@ def main():
             # Use get_group and update_group from member.py
             group_info = member.get_group(org_name, project_name, group_name, pat)
             if group_info:
-                member.update_group(org_name, project_name, group_info['id'], email, pat)
+                member.update_group(org_name, project_name, group_info['id'], email, True, pat)
             else:
                 logger.warning(f"Group '{group_name}' not found. Skipping membership update.")
 
