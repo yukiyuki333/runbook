@@ -10,7 +10,7 @@ parameters:
   - name: repo_name
     displayName: '[create_project] 儲存庫名稱 (Repo Name)'
     type: string
-    default: 'default_repo'
+    default: 'test_project'
   - name: pipeline_name
     displayName: '[create_project] 流水線名稱 (Pipeline Name)'
     type: string
