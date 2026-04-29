@@ -1,19 +1,94 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
-- main
+  - main
+
+# 定義 Runtime Parameters
+parameters:
+  - name: project_name
+    displayName: '[create_project] 專案名稱 (Project Name)'
+    type: string
+    default: 'test_project'
+  - name: repo_name
+    displayName: '[create_project] 儲存庫名稱 (Repo Name)'
+    type: string
+    default: 'QQ'
+  - name: pipeline_name
+    displayName: '[create_project] 流水線名稱 (Pipeline Name)'
+    type: string
+    default: 'test_pipeline'
+  - name: update_member_flag
+    displayName: '[manage_membership] 更新成員標籤 (Update Member Flag)'
+    type: string
+    default: 'False'
+
+
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: 'ubuntu-latest'
+
+variables:
+  python.version: '3.x'
+  sonarCloudServiceConnection: 'SonarCloud'
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '$(python.version)'
+    displayName: 'Use Python $(python.version)'
+
+  - script: |
+      python -m pip install --upgrade pip
+      python -m pip install pytest pytest-cov jq
+      python -m pip install requests
+      python -m pip install git+https://github.com/yukiyuki333/ado_api_package.git
+    displayName: 'Install dependencies'
+
+  - task: SonarCloudPrepare@3
+    displayName: 'Prepare SonarCloud Analysis'
+    inputs:
+      SonarCloud: '$(sonarCloudServiceConnection)'
+      organization: '$(sonarCloudOrganization)'
+      scannerMode: 'CLI'
+      configMode: 'manual'
+      cliProjectKey: '$(sonarProjectKey)'
+      cliProjectName: '$(sonarProjectName)'
 
 - script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+      echo "🚀 開始執行 Runbook 1..."
+      python create_project.py --project_name "${{ parameters.project_name }}" --repo_name "${{ parameters.repo_name }}" --pipeline_name "${{ parameters.pipeline_name }}" --email "${{ parameters.email }}"
+      
+      echo "🚀 開始執行 Runbook 2..."
+      python manage_membership.py --email "${{ parameters.email }}" --update_member_flag "${{ parameters.update_member_flag }}"
+    displayName: 'Execute Runbook 1 & Runbook 2'
+    env:
+      org_name: $(ORG_NAME)
+      pat: $(PAT)
+      email: $(test_email)
+
+  - task: PublishTestResults@2
+    displayName: 'Publish Test Results to Azure DevOps'
+    inputs:
+      testResultsFormat: 'JUnit'
+      testResultsFiles: '**/test-results.xml'
+      failTaskOnFailedTests: true
+      testRunTitle: 'Python Tests'
+
+  - task: PublishCodeCoverageResults@1
+    displayName: 'Publish Code Coverage'
+    inputs:
+      codeCoverageTool: 'Cobertura'
+      summaryFileLocation: '$(System.DefaultWorkingDirectory)/coverage.xml'
+
+  - task: PublishTestResults@2
+    displayName: 'Publish Performance Test Results'
+    inputs:
+      testResultsFormat: 'JUnit'
+      testResultsFiles: '**/perf-results.xml'
+      testRunTitle: 'Performance Test Results'
+
+  - task: SonarCloudAnalyze@3
+    displayName: 'SonarCloudAnalyze'
+
+  - task: SonarCloudPublish@3
+    displayName: 'SonarCloudPublish'
+    inputs:
+      pollingTimeoutSec: '300'
