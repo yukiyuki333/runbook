@@ -44,11 +44,10 @@ def main():
         # Step 1: Check project exists
         if project.check_project_exists(org_name, project_name, pat):
             logger.info(f"Project '{project_name}' already exists. Exiting silently.")
-            return
 
         # Step 2: Check project_name == repo_name
-        if project_name == repo_name:
-            logger.info("project_name and repo_name are identical. Exiting silently.")
+        if project_name != repo_name:
+            logger.info("project_name and repo_name are not identical.")
             return
 
         # Step 3: Create project
