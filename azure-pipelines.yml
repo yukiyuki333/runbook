@@ -10,7 +10,7 @@ parameters:
   - name: repo_name
     displayName: '[create_project] 儲存庫名稱 (Repo Name)'
     type: string
-    default: 'QQ'
+    default: 'default_repo'
   - name: pipeline_name
     displayName: '[create_project] 流水線名稱 (Pipeline Name)'
     type: string
@@ -52,12 +52,12 @@ steps:
       cliProjectKey: '$(sonarProjectKey)'
       cliProjectName: '$(sonarProjectName)'
 
-- script: |
+  - script: |
       echo "🚀 開始執行 Runbook 1..."
-      python create_project.py --project_name "${{ parameters.project_name }}" --repo_name "${{ parameters.repo_name }}" --pipeline_name "${{ parameters.pipeline_name }}" --email "${{ parameters.email }}"
+      python create_project.py --project_name "${{ parameters.project_name }}" --repo_name "${{ parameters.repo_name }}" --pipeline_name "${{ parameters.pipeline_name }}"
       
       echo "🚀 開始執行 Runbook 2..."
-      python manage_membership.py --email "${{ parameters.email }}" --update_member_flag "${{ parameters.update_member_flag }}"
+      python manage_membership.py --update_member_flag "${{ parameters.update_member_flag }}"
     displayName: 'Execute Runbook 1 & Runbook 2'
     env:
       org_name: $(ORG_NAME)
