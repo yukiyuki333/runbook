@@ -8,15 +8,16 @@ from ado_api import project, repo, pipeline, branch, member
 def main():
     org_name = os.getenv("org_name")
     pat = os.getenv("pat")
-    email = os.getenv("email")
 
     parser = argparse.ArgumentParser(description="Azure DevOps Project Creation Runbook")
     parser.add_argument("--update_member_flag", required=True, help="update_member_flag")
     parser.add_argument("--project_name", required=True, help="project_name")
+    parser.add_argument("--email", required=True, help="Email")
 
     args = parser.parse_args()
     update_member_flag = args.update_member_flag
     project_name = args.project_name
+    email = args.email
 
     if len(sys.argv) < 2:
         print("Usage: python manage_membership.py <project_name> <action: add|remove> <group_type: ProjectManager|ProjectMember>")

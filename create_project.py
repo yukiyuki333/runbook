@@ -22,13 +22,13 @@ def main():
     parser.add_argument("--project_name", required=True, help="Name of the Azure DevOps project")
     parser.add_argument("--repo_name", required=True, help="Name of the repository to create")
     parser.add_argument("--pipeline_name", required=True, help="Name of the pipeline to create")
+    parser.add_argument("--email", required=True, help="Email")
 
     args = parser.parse_args()
 
     # Phase 2: Foundational - Environment Setup
     org_name = os.getenv("org_name")
     pat = os.getenv("pat")
-    email = os.getenv("email")
 
     if not org_name or not pat:
         logger.error("Environment variables 'org_name' or 'pat' are missing.")
@@ -37,6 +37,7 @@ def main():
     project_name = args.project_name
     repo_name = args.repo_name
     pipeline_name = args.pipeline_name
+    email = args.email
 
     logger.info(f"Starting runbook for project: {project_name}")
 
